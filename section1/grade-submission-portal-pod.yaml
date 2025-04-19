@@ -19,3 +19,14 @@ spec:
         #we dont limit cpu because the kernel can throttle the cpu usage, unlike memory
     ports:
       - containerPort: 5001 #Check the image what port it is exposing
+
+  - name: grade-submission-portal-health-checker
+    image: rslim087/kubernetes-course-grade-submission-portal-health-checker
+    resources:
+      requests: #
+        memory: "128Mi"
+        cpu: "200m"
+      limits:
+        memory: "128Mi"       
+    # This does not have ports since this container is not a web app and not exposing a service
+    
