@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata: # this holds the pod datails
+  name: grade-submission-portal
+  labels: # Properly grouping and categorizing the pod for easy querrying 
+    app.kubernetes.io/name: grade-submission # Group label
+    app.kubernetes.io/component: frontend #what this container use for
+    app.kubernetes.io/instance: grade-submission-portal #unique name of this container
+spec:
+  containers: # this holds the container details
+  - name: grade-submission-portal # in 1:1 pod:container both should have the same name
+    image: rslim087/kubernetes-course-grade-submission-portal
+    env: # this is where we set the environment variables for the container
+      - name: GRADE_SERVICE_HOST # this is the name of the environment variable
+        value: "grade-submission-api" # this is the value of the environment variable
+    resources:
+      requests: #Kubernetes will decide which node to accomodate our pod base on the resource 
+        memory: "128Mi"
+        cpu: "200m"
+      limits:
+        memory: "128Mi"
+        # we dont limit cpu because cpu throttling has bad side effects,
+        # and modern cpu are good at sharing and scheduling cpu resource
+    ports:
+      - containerPort: 5001 #Check the image what port it is exposing
