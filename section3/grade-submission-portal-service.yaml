@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grade-submission-portal
+  namespace: grade-submission
+spec:
+  selector: # This links the service to the Pods to route traffic to.
+    app.kubernetes.io/instance: grade-submission-portal
+  type: NodePort # Exposes service on each Node’s IP at a static port (not ideal for multinode cluster). see other types
+  ports:
+  - port: 5001 # The port that the service will expose inside the cluster.
+    targetPort: 5001 # The port that the container is listening on.
+    nodePort: 32000 # The port on each node that will route to the service. This is the port you will use to access the service from outside the cluster.
+    #If not specified, Kubernetes will assign a port from the default range (30000-32767).

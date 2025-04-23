@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: grade-submission-api
+  namespace: grade-submission # use this to group the pods with other resources by namespace
+  labels: # Properly grouping and categorizing the pod for easy querrying 
+    app.kubernetes.io/name: grade-submission # Group label
+    app.kubernetes.io/component: backend #what this container use for
+    app.kubernetes.io/instance: grade-submission-api #unique name of this container
+spec:
+  containers: # this holds the container details
+  - name: grade-submission-api # in 1:1 pod:container both should have the same name
+    image: rslim087/kubernetes-course-grade-submission-api:stateless
+    resources:
+      requests: #Kubernetes will decide which node to accomodate our pod base on the resource 
+        memory: "128Mi"
+        cpu: "128m"
+      limits:
+        memory: "128Mi"
+        # we dont limit cpu because cpu throttling has bad side effects,
+        # and modern cpu are good at sharing and scheduling cpu resource
+    ports:
+      - containerPort: 3000 #Check the image what port it is exposing
