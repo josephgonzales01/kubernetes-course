@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grade-submission-api
+  namespace: grade-submission # this is the namespace we want to use, which is the same as the one we used for our service
+spec:
+  replicas: 2 # this is the number of pods we want to run
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: grade-submission-api # this is the label we want to match with the pods
+  template:
+    metadata: # everything below is the template for the pods use to create the replicas, which copy/pasted from the pod.yaml
+      labels:
+        app.kubernetes.io/name: grade-submission 
+        app.kubernetes.io/component: backend 
+        app.kubernetes.io/instance: grade-submission-api 
+    spec:
+      restartPolicy: Always 
+      containers: 
+      - name: grade-submission-api 
+        image: rslim087/kubernetes-course-grade-submission-api:stateless
+        resources:
+          requests: 
+            memory: "128Mi"
+            cpu: "128m"
+          limits:
+            memory: "128Mi"
+        ports:
+          - containerPort: 3000
