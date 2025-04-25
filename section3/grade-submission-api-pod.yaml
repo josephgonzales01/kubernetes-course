@@ -8,6 +8,7 @@ metadata:
     app.kubernetes.io/component: backend #what this container use for
     app.kubernetes.io/instance: grade-submission-api #unique name of this container
 spec:
+  restartPolicy: Always # this is the default value, but we can set it to Never or OnFailure
   containers: # this holds the container details
   - name: grade-submission-api # in 1:1 pod:container both should have the same name
     image: rslim087/kubernetes-course-grade-submission-api:stateless
