@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grade-submission-api
+  namespace: grade-submission # this is the namespace we want to use, which is the same as the one we used for our service
+spec:
+  replicas: 2 # this is the number of pods we want to run
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: grade-submission-api # this is the label we want to match with the pods
+  strategy:
+    type: RollingUpdate # this is the strategy we want to use, which is the default one
+    RollingUpdate:
+      maxUnavailable: 50% # this is the maximum number of pods that can be unavailable during the update
+      maxSurge: 1 # this is the maximum number of pods that can be created above the desired number of pods during the update
+  template:
+    metadata: # everything below is the template for the pods use to create the replicas, which copy/pasted from the pod.yaml
+      labels:
+        app.kubernetes.io/name: grade-submission 
+        app.kubernetes.io/component: backend 
+        app.kubernetes.io/instance: grade-submission-api 
+    spec:
+      restartPolicy: Always 
+      containers: 
+      - name: grade-submission-api 
+        # step 1: change this to :statefull and then kubectl apply to see the rolling update
+        # step 2: then rollback by executing >kubectl rollout undo deployment/grade-submission-api -n grade-submission
+        image: rslim087/kubernetes-course-grade-submission-api:stateless 
+        resources:
+          requests: 
+            memory: "128Mi"
+            cpu: "128m"
+          limits:
+            memory: "128Mi"
+        ports:
+          - containerPort: 3000
