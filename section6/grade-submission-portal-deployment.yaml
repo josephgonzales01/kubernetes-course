@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grade-submission-portal
+  namespace: grade-submission # this is the namespace we want to use, which is the same as the one we used for the service
+spec:
+  replicas: 1 # this is the number of pods we want to run, only one for the frontend
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: grade-submission-portal # this is the label we want to match with the pods
+  template:
+    metadata: # everything below is the template for the pods use to create the replicas, which copy/pasted from the pod.yaml
+      labels:
+        app.kubernetes.io/name: grade-submission 
+        app.kubernetes.io/component: frontend 
+        app.kubernetes.io/instance: grade-submission-portal 
+    spec:
+      restartPolicy: Always 
+      containers: 
+      - name: grade-submission-portal
+        image: rslim087/kubernetes-course-grade-submission-portal
+        env:
+          - name: GRADE_SERVICE_HOST
+            value: "grade-submission-api"
+        livenessProbe: # this is the probe that will check if the container is alive
+          httpGet: # this prove will trigger a GET request to the container via below path and port
+            path: /healthz
+            port: 3000
+          initialDelaySeconds: 15 # this is the delay before the probe starts checking the container while it is starting
+          periodSeconds: 10 # this is the interval between each probe check
+        readinessProbe: # this is the probe that will check if the container is ready to serve traffic
+          httpGet:
+            path: /readyz
+            port: 3000  
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        resources:
+          requests: 
+            memory: "128Mi"
+            cpu: "128m"
+          limits:
+            memory: "128Mi"
+        ports:
+          - containerPort: 5001
