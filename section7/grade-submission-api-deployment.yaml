@@ -23,12 +23,16 @@ spec:
       restartPolicy: Always 
       containers: 
       - name: grade-submission-api 
-        image: rslim087/kubernetes-course-grade-submission-api:stateless-v2 # this version of the app connects to mongoDB
+        image: rslim087/kubernetes-course-grade-submission-api:stateless-v3 # this version of the app connects to mongoDB with auth
         env:
           - name: MONGODB_HOST # this is the environment variable that will be used to connect to the mongoDB service
             value: "mongodb" # this is the name of the service we created.
           - name: MONGODB_PORT 
             value: "27017"
+          - name: MONGODB_USER # Credentials to connect to the mongoDB statfulset
+            value: "admin"
+          - name: MONGODB_PASSWORD
+            value: "password123"   
         livenessProbe: # this is the probe that will check if the container is alive
           httpGet: # this prove will trigger a GET request to the container via below path and port
             path: /healthz
