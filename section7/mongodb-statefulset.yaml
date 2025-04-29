@@ -8,7 +8,7 @@ spec:
     matchLabels:
       app.kubernetes.io/instance: mongodb # this is the label we want to match with the pods
   serviceName: mongodb # Name of the service to use for the StatefulSet for 2 replicas it will create 2 services mongodb-0 and mongodb-1
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:    
