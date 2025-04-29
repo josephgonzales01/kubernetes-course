@@ -15,7 +15,7 @@ spec:
         app.kubernetes.io/component: frontend 
         app.kubernetes.io/instance: grade-submission-portal 
     spec:
-      restartPolicy: OnFailure 
+      restartPolicy: Always 
       containers: 
       - name: grade-submission-portal
         image: rslim087/kubernetes-course-grade-submission-portal
@@ -26,13 +26,13 @@ spec:
           httpGet: # this prove will trigger a GET request to the container via below path and port
             path: /healthz
             port: 5001
-          initialDelaySeconds: 10 # this is the delay before the probe starts checking the container while it is starting
+          initialDelaySeconds: 15 # Wait 15s after container starts before first probe
           periodSeconds: 10 # this is the interval between each probe check
         readinessProbe: # this is the probe that will check if the container is ready to serve traffic
           httpGet:
             path: /readyz
-            port: 5001
-          initialDelaySeconds: 10
+            port: 5001  
+          initialDelaySeconds: 15
           periodSeconds: 10
         resources:
           requests: 
