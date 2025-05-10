@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grade-submission-api
+  namespace: grade-submission # this is the namespace we want to use, which is the same as the one we used for our service
+spec:
+  replicas: 2 # this is the number of pods we want to run
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: grade-submission-api # this is the label we want to match with the pods
+  strategy:
+    type: RollingUpdate # this is the strategy we want to use, which is the default one
+    rollingUpdate:
+      maxUnavailable: 50% # this is the maximum number of pods that can be unavailable during the update
+      maxSurge: 1 # this is the maximum number of pods that can be created above the desired number of pods during the update
+  template:
+    metadata: # everything below is the template for the pods use to create the replicas, which copy/pasted from the pod.yaml
+      labels:
+        app.kubernetes.io/name: grade-submission 
+        app.kubernetes.io/component: backend 
+        app.kubernetes.io/instance: grade-submission-api 
+    spec:
+      restartPolicy: Always 
+      containers: 
+      - name: grade-submission-api 
+        image: rslim087/kubernetes-course-grade-submission-api:stateless-v3 # this version of the app connects to mongoDB with auth
+        envFrom: # this is the way to load environment variables from a config map, which is a better practice than hardcoding them in the deployment file
+          - configMapRef:
+              name: grade-submission-api-config # this is the name we set on the config map
+          - secretRef:
+              name: grade-submission-api-secret # this is the name we set on the secret        
+        livenessProbe: # this is the probe that will check if the container is alive
+          httpGet: # this prove will trigger a GET request to the container via below path and port
+            path: /healthz
+            port: 3000
+          initialDelaySeconds: 15 # this is the delay before the probe starts checking the container while it is starting
+          periodSeconds: 10 # this is the interval between each probe check
+        readinessProbe: # this is the probe that will check if the container is ready to serve traffic
+          httpGet:
+            path: /readyz
+            port: 3000  
+          initialDelaySeconds: 15
+          periodSeconds: 10 
+        resources:
+          requests: 
+            memory: "128Mi"
+            cpu: "128m"
+          limits:
+            memory: "128Mi"
+        ports:
+          - containerPort: 3000

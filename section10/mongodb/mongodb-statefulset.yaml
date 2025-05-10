@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+  namespace: grade-submission
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: mongodb # this is the label we want to match with the pods
+  serviceName: mongodb # Name of the service to use for the StatefulSet for 2 replicas it will create 2 services mongodb-0 and mongodb-1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: grade-submission
+        app.kubernetes.io/component: database
+        app.kubernetes.io/instance: mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:4.4
+          ports:
+            - containerPort: 27017
+          envFrom: # credentials mongoDB uses to create the root user and password         
+            - secretRef:
+                name: mongodb-secret # this is the name of the secret we created
+          volumeMounts:
+            - name: mongodb-persistent-storage # this is the name of the volume we want to mount, which is the same as the name of the PVC
+              mountPath: /data/db # this is the path where we want to mount the volume in the container, which is the default path for MongoDB
+  volumeClaimTemplates: # Each pod in the StatefulSet will have its own volume aka PersistentVolumeClaim (PVC), which is created from this template
+    - metadata:
+        name: mongodb-persistent-storage # this is the name of the PVC, which will be used to create the PersistentVolume (PV),
+        # the name of the PV will be mongodb-persistent-storage-mongodb-0 and mongodb-persistent-storage-mongodb-1 for the 2 replicas
+      spec:
+        accessModes: ["ReadWriteOnce"] # means that for 2 replicas, only one pod can write to the volume at a time
+        resources:
+          requests:
+            storage: 1Gi
